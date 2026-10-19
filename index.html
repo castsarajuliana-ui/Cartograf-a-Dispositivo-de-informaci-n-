@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PixelNest | Álbum Digital</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">P</span>
+          <span>PixelNest</span>
+        </div>
+        <div class="topbar-status">
+          <span id="storageStat" class="status-pill">0 fotos</span>
+        </div>
+      </header>
+
+      <main class="main-layout">
+        <section class="panel capture-panel">
+          <div class="panel-header">
+            <h2>Recorre y registra el lugar</h2>
+          </div>
+
+          <section class="prompt-guide" aria-labelledby="activePromptTitle">
+            <div class="prompt-progress">
+              <span id="promptStepCount">Pregunta 1 de 5</span>
+              <span id="promptCompletion">0 de 5 respondidas</span>
+            </div>
+            <h3 id="activePromptTitle"></h3>
+            <p id="activePromptText"></p>
+            <nav id="promptSteps" class="prompt-steps" aria-label="Preguntas"></nav>
+          </section>
+
+          <div class="camera-box">
+            <video id="cameraPreview" autoplay playsinline muted></video>
+            <div id="cameraOverlay" class="camera-overlay">Cámara apagada</div>
+          </div>
+
+          <div class="camera-controls">
+            <button id="startCameraBtn" class="btn btn-primary" type="button">
+              Activar cámara
+            </button>
+            <button id="captureBtn" class="btn btn-success" type="button" disabled>
+              Tomar foto
+            </button>
+            <button id="switchCameraBtn" class="btn btn-secondary" type="button" disabled>
+              Cambiar cámara
+            </button>
+          </div>
+
+          <div id="dropZone" class="upload-box" tabindex="0">
+            <input id="fileInput" type="file" accept="image/*" hidden />
+            <div class="upload-icon">⇪</div>
+            <p><strong>Sube una foto</strong></p>
+            <p>Arrastra aquí o selecciona desde tu galería</p>
+            <button id="browseBtn" class="btn btn-ghost" type="button">
+              Elegir archivo
+            </button>
+          </div>
+        </section>
+
+        <aside class="panel form-panel">
+          <div class="panel-header">
+            <h2>Detalles de la foto</h2>
+          </div>
+
+          <form id="photoForm">
+            <div id="photoPreviewBox" class="photo-preview empty">
+              <img id="photoPreview" alt="Vista previa" />
+              <canvas id="drawCanvas" aria-label="Dibuja sobre la fotografía"></canvas>
+              <span class="preview-placeholder">Sin imagen seleccionada</span>
+            </div>
+
+            <div class="field-group">
+              <label for="authorInput">Tu nombre</label>
+              <input id="authorInput" name="author" type="text" placeholder="¿Cómo te llamas?" required />
+            </div>
+
+            <div class="field-group">
+              <label for="categoryInput">Categoría</label>
+              <select id="categoryInput" name="category" required>
+                <option value="">Selecciona una categoría</option>
+                <option value="Personas">Personas</option>
+                <option value="Objetos">Objetos</option>
+                <option value="Actividades">Actividades</option>
+              </select>
+            </div>
+
+            <div id="drawingTools" class="drawing-tools hidden">
+              <span>Dibuja sobre la foto</span>
+              <button id="undoDrawingBtn" class="btn btn-secondary" type="button" disabled>Deshacer trazo</button>
+            </div>
+
+            <div class="field-group">
+              <label id="answerLabel" for="descriptionInput">Tu respuesta</label>
+              <textarea id="descriptionInput" name="description" rows="4" placeholder="Escribe tu respuesta..." required></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button id="savePhotoBtn" class="btn btn-primary" type="submit">Guardar foto</button>
+              <button id="clearFormBtn" class="btn btn-secondary" type="button">Quitar foto</button>
+            </div>
+          </form>
+        </aside>
+      </main>
+
+      <section class="panel gallery-panel">
+        <div class="gallery-toolbar">
+          <div class="search-wrap">
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Buscar por título o autor"
+              aria-label="Buscar fotos"
+            />
+          </div>
+
+          <div class="filter-wrap">
+            <select id="categoryFilter" aria-label="Filtrar por categoría">
+              <option value="Todas">Todas las categorías</option>
+              <option value="Personas">Personas</option>
+              <option value="Objetos">Objetos</option>
+              <option value="Actividades">Actividades</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="galleryGrid" class="gallery-grid" aria-live="polite"></div>
+
+        <div id="emptyState" class="empty-state hidden">
+          <h3>No hay fotos aún</h3>
+          <p>Captura una imagen con la cámara o sube una desde tu dispositivo.</p>
+        </div>
+      </section>
+    </div>
+
+    <div id="modal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close="true"></div>
+
+      <div class="modal-content">
+        <button id="closeModalBtn" class="close-modal" type="button" aria-label="Cerrar">
+          ×
+        </button>
+
+        <div class="modal-media">
+          <img id="modalImage" src="" alt="Vista previa ampliada" />
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-meta">
+            <span id="modalCategory" class="tag"></span>
+            <span id="modalDate" class="date"></span>
+          </div>
+
+          <h3 id="modalTitle"></h3>
+          <p id="modalAuthor" class="author"></p>
+          <p id="modalQuestion" class="question-text"></p>
+          <p id="modalDescription"></p>
+        </div>
+
+        <div class="modal-actions">
+          <a id="downloadLink" class="btn btn-primary" href="#" download>
+            Descargar
+          </a>
+          <button id="deletePhotoBtn" class="btn btn-danger" type="button">
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
